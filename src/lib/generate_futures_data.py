@@ -1,6 +1,61 @@
 import ccxt
 import os
 import pandas as pd
+from src.lib.loggerring import logger
+
+
+def bingx_futures_date_range_1h(start_date, end_date, symbol):
+    """
+    Fetch historical OHLCV data for futures on BingX within a specified date range.
+
+    Parameters
+    ----------
+    start_date : str
+        The start date in 'YYYY-MM-DD' format.
+    end_date : str
+        The end date in 'YYYY-MM-DD' format.
+    symbol : str
+        The trading symbol (e.g., 'BTC/USDT:USDT').
+
+    Returns
+    -------
+    pd.DataFrame
+    """
+
+    exchange = ccxt.bingx({
+        'enableRateLimit': True,
+    })
+
+    start_timestamp = exchange.parse8601(start_date + 'T00:00:00Z')
+    end_timestamp = exchange.parse8601(end_date + 'T23:59:59Z')
+
+    all_ohlcv = pd.DataFrame()
+
+    current_timestamp = start_timestamp
+    while current_timestamp < end_timestamp:
+        try:
+            ohlcv = exchange.fetch_ohlcv(symbol, '1h', since=current_timestamp, limit=1000)
+            if not ohlcv:
+                print(f"No data found for current timestamp {current_timestamp}")
+                logger.debug('No OHLCV data found for symbol {}'.format(symbol))
+                continue
+        except Exception as e:
+            print(e)
+            logger.error(e)
+
+        df = pd.DataFrame(ohlcv, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
+
+        if len(df) < 10:
+            raise Exception(f"No data found for current timestamp {current_timestamp}")
+
+        all_ohlcv = pd.concat([all_ohlcv, df], ignore_index=True)
+
+        current_timestamp = ohlcv[-1][0] + 3600000  # Add 1 hour in milliseconds
+
+    all_ohlcv = all_ohlcv[(all_ohlcv['timestamp'] >= start_timestamp) & (all_ohlcv['timestamp'] <= end_timestamp)]
+
+    return all_ohlcv
+
 
 def get_bingx_futures_ohlcv(symbol, timeframe, limit=100) -> pd.DataFrame:
     """
@@ -29,6 +84,7 @@ def get_bingx_futures_ohlcv(symbol, timeframe, limit=100) -> pd.DataFrame:
     df = pd.DataFrame(ohlcv, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
 
     return df
+
 
 def save_ohlcv_to_csv(data, symbol, timeframe):
     """
@@ -63,10 +119,14 @@ def save_ohlcv_to_csv(data, symbol, timeframe):
 
     return filename
 
-if __name__ == "__main__":
-    symbol = 'BTC/USDT:USDT'
-    timeframe = '1h'
-    limit = 100
 
-    ohlcv_data = get_bingx_futures_ohlcv(symbol, timeframe, limit)
+if __name__ == "__main__":
+    symbol = 'SOL/USDT:USDT'
+    start_date = '2022-03-01'
+    end_date = '2025-03-09'
+    timeframe = '1h'
+
+    ohlcv_data = bingx_futures_date_range_1h(start_date=start_date, end_date=end_date, symbol=symbol)
+
+    # ohlcv_data = get_bingx_futures_ohlcv(symbol, timeframe, limit)
     save_ohlcv_to_csv(ohlcv_data, symbol, timeframe)
