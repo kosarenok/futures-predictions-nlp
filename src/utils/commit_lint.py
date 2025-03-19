@@ -10,6 +10,7 @@ import re
 import sys
 
 COMMIT_MESSAGE_FORMAT = "<type>[optional scope]: <description>"
+VALID_TYPES = ["feat", "fix", "docs", "style", "refactor", "perf", "test", "build", "ci", "chore", "revert"]
 
 
 def format_text(text: str, format_type: str) -> str:
@@ -60,23 +61,19 @@ def read_commit_message():
 
     If all attempts fail, it returns None and prints an error message.
     """
-
     # Try to read from COMMIT_EDITMSG file
     commit_editmsg = os.path.join(os.getcwd(), ".git", "COMMIT_EDITMSG")
     if os.path.exists(commit_editmsg):
-        print(f"Debug: Reading from COMMIT_EDITMSG - {commit_editmsg}")
         with open(commit_editmsg, "r", encoding="utf-8") as f:
             return f.read().strip()
 
     # If COMMIT_EDITMSG doesn't exist, try reading from stdin
     if not sys.stdin.isatty():
-        print("Debug: Reading from stdin")
         return sys.stdin.read().strip()
 
     # If stdin is empty, check if we have any file arguments
     for arg in sys.argv[1:]:
         if os.path.isfile(arg):
-            print(f"Debug: Reading from file argument - {arg}")
             with open(arg, "r", encoding="utf-8") as f:
                 return f.read().strip()
 
@@ -100,9 +97,10 @@ def log_error_message(specific_error: str) -> None:
         f"...............................................................\n"
         f"Info: https://www.conventionalcommits.org/ru/v1.0.0/\n"
         f"Format should be: {commit_msg_format}\n"
+        f"Valid types: {', '.join(VALID_TYPES)}\n"
         f"Examples:\n"
         f"   - feat: add login functionality\n"
-        f"   - feat: implement new model\n"
+        f"   - feat(api): implement new endpoint\n"
         f"   - fix: resolve memory leak\n"
     )
     print(error_msg)
@@ -125,19 +123,10 @@ def check_commit_message(commit_msg: str) -> bool:
     Notes
     -----
     Conventional Commits format: <type>[optional scope]: <description>
-
-    Examples
-    --------
-    Valid commit messages:
-        - feat: add login functionality
-        - feat: implement new model
-        - fix: resolve memory leak
     """
     if not commit_msg:
         log_error_message("Empty commit message received.")
         return False
-
-    print(f"Debug: Received commit message - '{commit_msg}'")
 
     # Split the commit message into type (with optional scope) and the rest
     parts = commit_msg.split(": ", 1)
@@ -150,7 +139,7 @@ def check_commit_message(commit_msg: str) -> bool:
     # Check the type part
     type_pattern = r"^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-z ]+\))?$"
     if not re.match(type_pattern, type_part):
-        log_error_message("Invalid commit type or scope.")
+        log_error_message(f"Invalid commit type or scope. Valid types are: {', '.join(VALID_TYPES)}")
         return False
 
     print("Commit message follows the Conventional Commits format.")
@@ -161,7 +150,6 @@ def main() -> None:
     """
     Main function to run the commit message linting.
     """
-
     commit_message = read_commit_message()
     if commit_message is None:
         sys.exit(1)
