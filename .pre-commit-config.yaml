@@ -14,14 +14,12 @@ repos:
     hooks:
       - id: black
         args: [--config=pyproject.toml]
-        types: [ python ]
 
   - repo: https://github.com/pycqa/isort
     rev: 5.12.0
     hooks:
       - id: isort
         args: [--settings-file=pyproject.toml]
-        types: [ python ]
 
   - repo: https://github.com/pycqa/flake8
     rev: 6.0.0
@@ -29,15 +27,14 @@ repos:
       - id: flake8
         entry: pflake8
         additional_dependencies: [ pyproject-flake8 ]
-        types: [ python ]
 
-#  - repo: local
-#    hooks:
-#      - id: commit-message-lint
-#        name: commit-message-lint
-#        entry: python -m src.utils.commit_lint
-#        language: system
-#        stages: [commit-msg]
-#        always_run: true
-#        args:
-#          - check commit message
+  - repo: local
+    hooks:
+      - id: commit-message-lint
+        name: commit-message-lint
+        entry: python -m src.utils.commit_lint
+        language: system
+        stages: [commit-msg]
+        always_run: true
+        args:
+          - check commit message
