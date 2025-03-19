@@ -1,7 +1,7 @@
 import ccxt
 import os
 import pandas as pd
-from src.lib.loggerring import logger
+from src.utils.loggerring import logger
 
 
 def bingx_futures_date_range_1h(start_date, end_date, symbol):
