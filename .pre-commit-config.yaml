@@ -35,6 +35,5 @@ repos:
         entry: python -m src.utils.commit_lint
         language: system
         stages: [commit-msg]
-        always_run: true
         args:
           - check commit message
