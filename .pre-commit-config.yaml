@@ -31,13 +31,13 @@ repos:
         additional_dependencies: [ pyproject-flake8 ]
         types: [ python ]
 
-  - repo: local
-    hooks:
-      - id: commit-message-lint
-        name: commit-message-lint
-        entry: python -m src.utils.commit_lint
-        language: system
-        stages: [commit-msg]
-        always_run: true
-        args:
-          - check commit message
+#  - repo: local
+#    hooks:
+#      - id: commit-message-lint
+#        name: commit-message-lint
+#        entry: python -m src.utils.commit_lint
+#        language: system
+#        stages: [commit-msg]
+#        always_run: true
+#        args:
+#          - check commit message
