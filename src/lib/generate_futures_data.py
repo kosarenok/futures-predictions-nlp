@@ -138,5 +138,4 @@ if __name__ == "__main__":
         start_date=start_date, end_date=end_date, symbol=symbol
     )
 
-    # ohlcv_data = get_bingx_futures_ohlcv(symbol, timeframe, limit)
     save_ohlcv_to_csv(ohlcv_data, symbol, timeframe)

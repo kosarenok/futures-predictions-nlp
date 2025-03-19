@@ -2,3 +2,4 @@ ccxt==4.4.53
 pandas==2.2.3
 sqlalchemy==2.0.39
 pre_commit==4.2.0
+python-dotenv==1.0.1
