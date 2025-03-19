@@ -22,8 +22,12 @@ up: down clean build start
 logs:
 	docker-compose logs -f
 
+pre_commit:
+	pre-commit run --all-files
+
 help:
 	@echo "Available commands:"
 	@echo "  make down  - Stop containers"
 	@echo "  make up    - Full rebuild and restart"
 	@echo "  make logs  - View container logs"
+	@echo "  make pre_commit - Run pre-commit"

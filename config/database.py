@@ -5,9 +5,7 @@ Description: Module to work with database.
 
 from sqlalchemy import create_engine
 
-from config.variables import (
-    POSTGRES_USER,POSTGRES_DB,POSTGRES_PASSWORD
-)
+from config.variables import POSTGRES_DB, POSTGRES_PASSWORD, POSTGRES_USER
 
 DRIVER = "postgresql"
 
