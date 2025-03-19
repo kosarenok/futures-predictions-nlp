@@ -1,7 +1,0 @@
-[title-max-length]
-max-length = 100
-
-[title-must-match-regex]
-regex = ^(feat|fix|feat\(ci\)|fix\(refactor\)):\s.+$
-message = "Commit message must match '<type>: <description>' (types: feat, fix, feat(ci), fix(refactor))"
-description = "Title must start with allowed types followed by a colon and then a description."

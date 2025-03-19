@@ -28,17 +28,6 @@ repos:
         entry: pflake8
         additional_dependencies: [ pyproject-flake8 ]
 
-  - repo: https://github.com/jorisroovers/gitlint
-    rev: v0.18.0
-    hooks:
-      - id: gitlint
-        name: gitlint
-        entry: gitlint
-        stages: [commit-msg]
-        always_run: true
-        args:
-          - --msg-filename
-
   - repo: local
     hooks:
       - id: commit-message-lint
