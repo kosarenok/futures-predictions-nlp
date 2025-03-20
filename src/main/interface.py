@@ -10,7 +10,7 @@ from src.lib.futures_data import get_latest_futures_data, update_futures_data
 st.set_page_config(page_title="Crypto Analytics Dashboard", page_icon="📊", layout="wide")
 
 
-def plot_candlestick(df):
+def plot_candlestick(df, symbol):
     """Create a candlestick chart from OHLCV data."""
     if df.empty:
         st.warning("No data available for plotting")
@@ -35,7 +35,7 @@ def plot_candlestick(df):
     )
 
     fig.update_layout(
-        title="OHLCV Chart",
+        title=f"OHLCV {symbol} Data",
         xaxis_title="Date",
         yaxis_title="Price",
         xaxis_rangeslider_visible=False,
@@ -89,21 +89,13 @@ def main():
     col1, col2 = st.columns([1, 1])
 
     with col1:
-        st.subheader("Refresh News Data")
-        currency = st.selectbox("Select Currency for News", ["BTC", "ETH", "SOL"])
-        if st.button("Update News Data"):
-            with st.spinner("Updating news data..."):
-                try:
-                    update_news(currency)
-                    st.success(f"News data updated successfully for {currency}")
-                    st.rerun()
-                except Exception as e:
-                    st.error(f"Failed to update news data: {e}")
+        st.subheader("Choose symbol")
+        user_symbol = st.selectbox("Select Symbol", ["SOL", "BTC", "ETH"])
+        futures_symbol = f"{user_symbol}/USDT:USDT"
 
     with col2:
         # Futures data refresh section
-        st.subheader("Refresh Market Data")
-        futures_symbol = st.selectbox("Symbol", ["SOL/USDT:USDT", "BTC/USDT:USDT", "ETH/USDT:USDT"])
+        st.subheader("Choose date")
 
         # Date range for futures data
         today = datetime.now()
@@ -113,48 +105,47 @@ def main():
         start_date = st.date_input("Start Date", value=datetime.strptime(start_default, "%Y-%m-%d"))
         end_date = st.date_input("End Date", value=datetime.strptime(end_default, "%Y-%m-%d"))
 
-        if st.button("Update Market Data"):
-            with st.spinner("Updating market data..."):
-                try:
-                    update_futures_data(
-                        futures_symbol,
-                        start_date.strftime("%Y-%m-%d"),
-                        end_date.strftime("%Y-%m-%d"),
-                    )
-                    st.success(f"Market data updated successfully for {futures_symbol}")
-                    st.rerun()
-                except Exception as e:
-                    st.error(f"Failed to update market data: {e}")
+    if st.button("Refresh Data"):
+        with st.spinner("Updating market data..."):
+            try:
+                update_futures_data(
+                    futures_symbol,
+                    start_date.strftime("%Y-%m-%d"),
+                    end_date.strftime("%Y-%m-%d"),
+                )
+                update_news(user_symbol)
+                st.success(f"Market data updated successfully for {futures_symbol}")
+                st.rerun()
+            except Exception as e:
+                st.error(f"Failed to update market data: {e}")
 
     st.markdown("---")
 
-    # Main content area
-    tab1, tab2 = st.tabs(["Market Data", "Crypto News"])
+    st.header("Futures Market Data")
 
-    with tab1:
-        st.header("Futures Market Data")
-        symbol = st.selectbox("Select Symbol", ["SOL/USDT:USDT", "BTC/USDT:USDT", "ETH/USDT:USDT"])
+    # Get data directly from the function instead of API
+    data_df = get_latest_futures_data(futures_symbol)
+    if not data_df.empty:
+        st.success(f"Data retrieved for {futures_symbol}")
+        fig = plot_candlestick(data_df, futures_symbol)
+        if fig:
+            st.plotly_chart(fig, use_container_width=True)
+    else:
+        update_futures_data(
+            futures_symbol,
+            start_date=(today - timedelta(days=10)).strftime("%Y-%m-%d"),
+            end_date=(today - timedelta(days=1)).strftime("%Y-%m-%d"),
+        )
 
-        # Get data directly from the function instead of API
-        data_df = get_latest_futures_data(symbol)
-        if not data_df.empty:
-            st.success(f"Data retrieved for {symbol}")
-            fig = plot_candlestick(data_df)
-            if fig:
-                st.plotly_chart(fig, use_container_width=True)
-        else:
-            update_futures_data(symbol, "2025-03-15", datetime.now().strftime("%Y-%m-%d"))
+    st.markdown("---")
 
-    with tab2:
-        st.header("Latest Crypto News")
-        symbol = st.selectbox("Select Symbol", ["SOL", "BTC", "ETH"])
-        # Get news directly from the function instead of API
-        news_df = latest_news()
-        if not news_df.empty:
-            st.success("Latest news retrieved")
-            display_news_table(news_df)
-        else:
-            update_news(symbol)
+    st.header("Latest Crypto News")
+    news_df = latest_news()
+    if not news_df.empty:
+        st.success("Latest news retrieved")
+        display_news_table(news_df)
+    else:
+        update_news(user_symbol)
 
 
 if __name__ == "__main__":
