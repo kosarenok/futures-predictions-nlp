@@ -53,9 +53,9 @@ def display_news_table(news_df):
 
     # Display only relevant columns
     if (
-            "published_at" in news_df.columns
-            and "title" in news_df.columns
-            and "url" in news_df.columns
+        "published_at" in news_df.columns
+        and "title" in news_df.columns
+        and "url" in news_df.columns
     ):
         display_df = news_df[["published_at", "title", "url"]].copy()
 
@@ -94,7 +94,6 @@ def main():
         futures_symbol = f"{user_symbol}/USDT:USDT"
 
     with col2:
-
         # Futures data refresh section
         st.subheader("Choose date")
 
@@ -132,8 +131,11 @@ def main():
         if fig:
             st.plotly_chart(fig, use_container_width=True)
     else:
-        update_futures_data(futures_symbol, start_date=(today - timedelta(days=10)).strftime("%Y-%m-%d"),
-                            end_date=(today - timedelta(days=1)).strftime("%Y-%m-%d"))
+        update_futures_data(
+            futures_symbol,
+            start_date=(today - timedelta(days=10)).strftime("%Y-%m-%d"),
+            end_date=(today - timedelta(days=1)).strftime("%Y-%m-%d"),
+        )
 
     st.markdown("---")
 
