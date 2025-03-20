@@ -4,6 +4,7 @@ import ccxt
 import pandas as pd
 
 from src.utils.loggerring import logger
+from src.utils.sql_operators import upload_without_duplicates, select, get_query_from_sql_file, format_sql
 
 
 def bingx_futures_date_range_1h(start_date, end_date, symbol):
@@ -40,16 +41,16 @@ def bingx_futures_date_range_1h(start_date, end_date, symbol):
         try:
             ohlcv = exchange.fetch_ohlcv(symbol, "1h", since=current_timestamp, limit=1000)
             if not ohlcv:
-                print(f"No data found for current timestamp {current_timestamp}")
+                logger.debug(f"No data found for current timestamp {current_timestamp}")
                 logger.debug("No OHLCV data found for symbol {}".format(symbol))
                 continue
         except Exception as e:
-            print(e)
             logger.error(e)
 
         df = pd.DataFrame(ohlcv, columns=["timestamp", "open", "high", "low", "close", "volume"])
 
         if len(df) < 10:
+            logger.error(f"No data found for current timestamp {current_timestamp}")
             raise Exception(f"No data found for current timestamp {current_timestamp}")
 
         all_ohlcv = pd.concat([all_ohlcv, df], ignore_index=True)
@@ -127,6 +128,40 @@ def save_ohlcv_to_csv(data, symbol, timeframe):
 
     return filename
 
+def update_futures_data(symbol, start_date, end_date):
+    """
+    Update the OHLCV data in PostgreSQL database for a given symbol.
+
+    Parameters
+    ----------
+    symbol : str
+        The trading symbol (e.g., 'BTC/USDT:USDT').
+    start_date : str
+        The start date in 'YYYY-MM-DD' format.
+    end_date : str
+        The end date in 'YYYY-MM-DD' format.
+    """
+
+    ohlcv_data = bingx_futures_date_range_1h(start_date, end_date, symbol)
+    upload_without_duplicates(ohlcv_data, table_name="futures_ohlcv")
+
+def get_latest_futures_data(symbol):
+    """
+    Get the latest OHLCV data for a specific symbol.
+
+    Parameters
+    ----------
+    symbol : str
+        The trading symbol (e.g., 'BTC/USDT:USDT').
+
+    Returns
+    -------
+    pd.DataFrame
+    """
+    query = get_query_from_sql_file("queries/latest_futures_data.sql")
+    query = format_sql(query, params={"symbol": symbol})
+    data = select(query)
+    return data
 
 if __name__ == "__main__":
     symbol = "SOL/USDT:USDT"

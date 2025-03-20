@@ -10,7 +10,19 @@ import re
 import sys
 
 COMMIT_MESSAGE_FORMAT = "<type>[optional scope]: <description>"
-VALID_TYPES = ["feat", "fix", "docs", "style", "refactor", "perf", "test", "build", "ci", "chore", "revert"]
+VALID_TYPES = [
+    "feat",
+    "fix",
+    "docs",
+    "style",
+    "refactor",
+    "perf",
+    "test",
+    "build",
+    "ci",
+    "chore",
+    "revert",
+]
 
 
 def format_text(text: str, format_type: str) -> str:
@@ -139,7 +151,9 @@ def check_commit_message(commit_msg: str) -> bool:
     # Check the type part
     type_pattern = r"^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-z ]+\))?$"
     if not re.match(type_pattern, type_part):
-        log_error_message(f"Invalid commit type or scope. Valid types are: {', '.join(VALID_TYPES)}")
+        log_error_message(
+            f"Invalid commit type or scope. Valid types are: {', '.join(VALID_TYPES)}"
+        )
         return False
 
     print("Commit message follows the Conventional Commits format.")
