@@ -41,3 +41,29 @@ export PYTHONPATH=$(pwd)
 # Windows
 set PYTHONPATH=%cd%
 ```
+
+## Docker
+
+```shell
+make up # Данная команда полностью перезапускает бота
+```
+
+либо
+
+```shell
+docker-compose build --no-cache
+docker-compose up -d
+```
+
+Для просмотра логов внутри контейнера
+
+```shell
+make logs
+```
+
+либо
+
+```shell
+docker-compose logs -f
+```
+
