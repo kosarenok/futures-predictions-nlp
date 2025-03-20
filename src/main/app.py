@@ -1,11 +1,12 @@
+from typing import Literal
+
 from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 
-from src.lib.futures_data import update_futures_data
 from src.lib.crypto_news import update_news
+from src.lib.futures_data import update_futures_data
 from src.utils.loggerring import logger
 
-from typing import Literal
 app = FastAPI(title="Crypto Analytics API")
 
 # Configure CORS
@@ -27,7 +28,7 @@ async def root():
 async def update_futures(
     symbol: str = Query(..., description="Trading symbol (e.g., 'BTC/USDT:USDT')"),
     start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
-    end_date: str = Query(..., description="End date in YYYY-MM-DD format")
+    end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
 ):
     """Update futures OHLCV data in the database."""
     try:

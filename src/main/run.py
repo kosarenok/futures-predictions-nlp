@@ -1,9 +1,9 @@
+import signal
 import subprocess
+import sys
 import threading
 import time
 import webbrowser
-import sys
-import signal
 from concurrent.futures import ThreadPoolExecutor
 
 
@@ -11,10 +11,7 @@ def start_api():
     """Start the FastAPI backend server."""
     try:
         print("Starting API server on http://localhost:8000")
-        subprocess.run(
-            ["python", "-m", "src.main.app"],
-            check=True
-        )
+        subprocess.run(["python", "-m", "src.main.app"], check=True)
     except subprocess.CalledProcessError as e:
         print(f"Error starting API server: {e}")
         return False
@@ -27,10 +24,7 @@ def start_interface():
     """Start the Streamlit interface."""
     try:
         print("Starting Streamlit interface on http://localhost:8501")
-        subprocess.run(
-            ["streamlit", "run", "src/main/interface.py"],
-            check=True
-        )
+        subprocess.run(["streamlit", "run", "src/main/interface.py"], check=True)
     except subprocess.CalledProcessError as e:
         print(f"Error starting Streamlit interface: {e}")
         return False

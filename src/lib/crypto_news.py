@@ -4,7 +4,7 @@ import pandas as pd
 import requests
 
 from config.variables import CRYPTO_PANIC_BASE_URL
-from src.utils.sql_operators import upload_without_duplicates, select, get_query_from_sql_file, format_sql
+from src.utils.sql_operators import get_query_from_sql_file, select, upload_without_duplicates
 
 
 def get_latest_crypto_news(currency: Literal["BTC", "ETH", "SOL"], page_number: int = 1) -> dict:
@@ -73,12 +73,12 @@ def process_news(news_data: dict) -> pd.DataFrame:
 
         # Convert published_at to datetime and then to Unix timestamp
         df["published_at"] = pd.to_datetime(df["published_at"])
-        df["published_at"] = df["published_at"].astype("int64") // 10 ** 9
+        df["published_at"] = df["published_at"].astype("int64") // 10**9
 
     return df
 
 
-def update_news(currency: Literal['BTC', 'ETH', 'SOL']):
+def update_news(currency: Literal["BTC", "ETH", "SOL"]):
     """
     Update the news data in the database for a specific currency.
 
@@ -90,6 +90,7 @@ def update_news(currency: Literal['BTC', 'ETH', 'SOL']):
     news_data = get_latest_crypto_news(currency)
     news_df = process_news(news_data)
     upload_without_duplicates(news_df, table_name="crypto_news")
+
 
 def latest_news() -> pd.DataFrame:
     """

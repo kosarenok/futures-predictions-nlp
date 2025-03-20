@@ -4,7 +4,12 @@ import ccxt
 import pandas as pd
 
 from src.utils.loggerring import logger
-from src.utils.sql_operators import upload_without_duplicates, select, get_query_from_sql_file, format_sql
+from src.utils.sql_operators import (
+    format_sql,
+    get_query_from_sql_file,
+    select,
+    upload_without_duplicates,
+)
 
 
 def bingx_futures_date_range_1h(start_date, end_date, symbol):
@@ -128,6 +133,7 @@ def save_ohlcv_to_csv(data, symbol, timeframe):
 
     return filename
 
+
 def update_futures_data(symbol, start_date, end_date):
     """
     Update the OHLCV data in PostgreSQL database for a given symbol.
@@ -144,6 +150,7 @@ def update_futures_data(symbol, start_date, end_date):
 
     ohlcv_data = bingx_futures_date_range_1h(start_date, end_date, symbol)
     upload_without_duplicates(ohlcv_data, table_name="futures_ohlcv")
+
 
 def get_latest_futures_data(symbol):
     """
@@ -162,6 +169,7 @@ def get_latest_futures_data(symbol):
     query = format_sql(query, params={"symbol": symbol})
     data = select(query)
     return data
+
 
 if __name__ == "__main__":
     symbol = "SOL/USDT:USDT"

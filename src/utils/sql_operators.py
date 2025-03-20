@@ -112,11 +112,11 @@ def execute(query: str, engine: Engine = ENGINE) -> None:
 
 
 def upload(
-        data: pd.DataFrame,
-        table_name: str,
-        schema: str = "public",
-        if_exists: Literal["fail", "replace", "append"] = "append",
-        engine: Engine = ENGINE,
+    data: pd.DataFrame,
+    table_name: str,
+    schema: str = "public",
+    if_exists: Literal["fail", "replace", "append"] = "append",
+    engine: Engine = ENGINE,
 ) -> None:
     """
     Upload data to a database table.
@@ -158,8 +158,9 @@ def upload(
         raise Exception(f"Error uploading data: {e}")
 
 
-def upload_without_duplicates(data_df: pd.DataFrame,
-                                   table_name: Literal["crypto_news", "futures_ohlcv"] = "crypto_news"):
+def upload_without_duplicates(
+    data_df: pd.DataFrame, table_name: Literal["crypto_news", "futures_ohlcv"] = "crypto_news"
+):
     """
     Upload news data to database, avoiding duplicate entries based on id.
 
