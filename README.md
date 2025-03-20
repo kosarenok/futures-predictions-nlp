@@ -66,4 +66,3 @@ make logs
 ```shell
 docker-compose logs -f
 ```
-
