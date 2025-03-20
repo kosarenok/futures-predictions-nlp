@@ -18,7 +18,7 @@ services:
       timeout: 5s
       retries: 5
 
-  application:
+  backend:
     build:
       context: .
       dockerfile: Dockerfile
@@ -26,10 +26,24 @@ services:
     env_file: .env
     ports:
       - "8000:8000"  # FastAPI
-      - "8501:8501"  # Streamlit
     depends_on:
       postgres_main:
         condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "8501:8501"  # Streamlit
+    depends_on:
+      - backend
+    volumes:
+      - ./logs:/app/logs
 
 volumes:
   postgres_data:
