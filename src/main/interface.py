@@ -84,43 +84,21 @@ def display_news_table(news_df):
 
 
 def main():
-    st.title("Crypto Analytics Dashboard")
+    st.title("Crypto News Prediction Interface")
 
-    # Main content area
-    tab1, tab2 = st.tabs(["Market Data", "Crypto News"])
-
-    with tab1:
-        st.header("Futures Market Data")
-        symbol = st.selectbox("Select Symbol", ["SOL/USDT:USDT", "BTC/USDT:USDT", "ETH/USDT:USDT"])
-
-        # Get data directly from the function instead of API
-        data_df = get_latest_futures_data(symbol)
-        if not data_df.empty:
-            st.success(f"Data retrieved for {symbol}")
-            fig = plot_candlestick(data_df)
-            if fig:
-                st.plotly_chart(fig, use_container_width=True)
-        else:
-            st.warning(f"No data available for {symbol}")
-
-    with tab2:
-        st.header("Latest Crypto News")
-        # Get news directly from the function instead of API
-        news_df = latest_news()
-        if not news_df.empty:
-            st.success("Latest news retrieved")
-            display_news_table(news_df)
-        else:
-            st.warning("No news data available")
-
-    # Footer with filters and refresh buttons
-    st.markdown("---")
-    st.subheader("Update Data")
-
-    col1, col2, col3 = st.columns([1, 1, 1])
+    col1, col2 = st.columns([1, 1])
 
     with col1:
+        st.subheader("Refresh News Data")
         currency = st.selectbox("Select Currency for News", ["BTC", "ETH", "SOL"])
+        if st.button("Update News Data"):
+            with st.spinner("Updating news data..."):
+                try:
+                    update_news(currency)
+                    st.success(f"News data updated successfully for {currency}")
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"Failed to update news data: {e}")
 
     with col2:
         # Futures data refresh section
@@ -129,8 +107,8 @@ def main():
 
         # Date range for futures data
         today = datetime.now()
-        start_default = (today - timedelta(days=30)).strftime("%Y-%m-%d")
-        end_default = today.strftime("%Y-%m-%d")
+        start_default = (today - timedelta(days=10)).strftime("%Y-%m-%d")
+        end_default = (today - timedelta(days=1)).strftime("%Y-%m-%d")
 
         start_date = st.date_input("Start Date", value=datetime.strptime(start_default, "%Y-%m-%d"))
         end_date = st.date_input("End Date", value=datetime.strptime(end_default, "%Y-%m-%d"))
@@ -148,19 +126,35 @@ def main():
                 except Exception as e:
                     st.error(f"Failed to update market data: {e}")
 
-    with col3:
-        # News refresh section
-        st.subheader("Refresh News Data")
-        st.write(f"Selected currency: {currency}")
+    st.markdown("---")
 
-        if st.button("Update News Data"):
-            with st.spinner("Updating news data..."):
-                try:
-                    update_news(currency)
-                    st.success(f"News data updated successfully for {currency}")
-                    st.rerun()
-                except Exception as e:
-                    st.error(f"Failed to update news data: {e}")
+    # Main content area
+    tab1, tab2 = st.tabs(["Market Data", "Crypto News"])
+
+    with tab1:
+        st.header("Futures Market Data")
+        symbol = st.selectbox("Select Symbol", ["SOL/USDT:USDT", "BTC/USDT:USDT", "ETH/USDT:USDT"])
+
+        # Get data directly from the function instead of API
+        data_df = get_latest_futures_data(symbol)
+        if not data_df.empty:
+            st.success(f"Data retrieved for {symbol}")
+            fig = plot_candlestick(data_df)
+            if fig:
+                st.plotly_chart(fig, use_container_width=True)
+        else:
+            update_futures_data(symbol, "2025-03-15", datetime.now().strftime("%Y-%m-%d"))
+
+    with tab2:
+        st.header("Latest Crypto News")
+        symbol = st.selectbox("Select Symbol", ["SOL", "BTC", "ETH"])
+        # Get news directly from the function instead of API
+        news_df = latest_news()
+        if not news_df.empty:
+            st.success("Latest news retrieved")
+            display_news_table(news_df)
+        else:
+            update_news(symbol)
 
 
 if __name__ == "__main__":
